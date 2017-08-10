@@ -1,0 +1,50 @@
+---
+title: "test_htmlwidget"
+author: "Ben Best"
+date: "August 10, 2017"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## csv
+
+```{r}
+library(tidyverse)
+
+url = 'http://stoqs.mbari.org:8000/stoqs_canon_april2017/api/measuredparameter.csv?measurement__instantpoint__activity__platform__name=ahi'
+
+d <- read_csv(file=url)
+unique(d$parameter__name)
+#class(d)
+
+
+d %>%
+  #select(parameter__name, datavalue) %>%
+  #filter(datavalue > 100) %>%
+  mutate(
+    depth_bin = cut(
+      measurement__depth, 
+      breaks = seq(0,30,by=5))) %>%
+  group_by(parameter__name, depth_bin) %>%
+  summarise(
+    avg_val = mean(datavalue, na.rm=T)) %>%
+  arrange(desc(avg_val))
+
+plot(d$measurement__depth)
+```
+
+
+## map
+
+```{r}
+library(leaflet)
+
+m <- leaflet() %>%
+  addTiles() %>%  # Add default OpenStreetMap map tiles
+  addMarkers(lng=174.768, lat=-36.852, popup="The birthplace of R")
+m
+```
+
